@@ -3,3 +3,5 @@
 /dist
 npm-debug.log
 *.swp
+*.swn
+*.swo
