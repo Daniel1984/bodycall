@@ -10,20 +10,47 @@ module.exports = React.createClass({
     
     getInitialState: function() {
         return {
-            distance: 0,
-            image_url: './img/profile_placeholder.jpg',
-            name: '',
-            point: [0, 0]
+            user: {
+                distance: 1,
+                image_url: './img/profile_placeholder.jpg',
+                name: '',
+                lat: 0,
+                lng: 0
+            },
+            users: []
         };
     },
 
-    componentDidMount: function() {
+    componentDidMount: function() { 
         this.getUserData();
+        // below we listen to any change happening to users array
+        fireBase.on('value', function(snapshot) {
+            this.getUsersByDistance();
+        }.bind(this));
     },
 
-    saveUserData: function() {
-        this.userRef.update(this.state)
-        alertify.message('User updated');
+    getUsersByDistance: function() {
+        var dist = this.state.user.distance / 100;
+        var lat = this.state.user.lat;
+        var lng = this.state.user.lng;
+
+        var startLat = lat - dist;
+        var endLat = lat + dist;
+        var startLng = lng - dist;
+        var endLng = lng + dist;
+        var result = [];
+
+        fireBase.orderByChild("lat").startAt(startLat).endAt(endLat).once("value", function(latSnap) { 
+            for(var latKey in latSnap.val()) {
+                result.push(latSnap.val()[latKey]);
+            }
+            fireBase.orderByChild("lng").startAt(startLng).endAt(endLng).once("value", function(lngSnap) {
+                for(var lngKey in lngSnap.val()) {
+                    result.push(lngSnap.val()[lngKey]);
+                }
+                this.setState({ users: _.uniq(result, 'user_id') });
+            }.bind(this));
+        }.bind(this));
     },
 
     getUserData: function() {
@@ -33,13 +60,23 @@ module.exports = React.createClass({
                 var fireKey = Object.keys(snap.val())[0];
                 var res = snap.val()[fireKey];
                 this.userRef = fireBase.child(fireKey);
-                this.setState(res);
+                this.setState({ user: res });
+                this.getUsersByDistance();
             }.bind(this));
+    },
+
+    saveUserData: function() {
+        this.userRef.update(this.state.user) 
+        this.getUsersByDistance();
+        alertify.message('User updated');
     },
 
     updateLocation: function() {
         navigator.geolocation.getCurrentPosition(function(pos) {
-            this.setState({ point: [pos.coords.latitude, pos.coords.longitude] });
+            var user = this.state.user;
+            user.lat = pos.coords.latitude;
+            user.lng = pos.coords.longitude;
+            this.setState({ user: user });
             this.saveUserData();
         }.bind(this));
     },
@@ -49,13 +86,15 @@ module.exports = React.createClass({
     }, 1000),
 
     onNameChange: function(e) {
-        this.setState({ name: e.target.value });
+        var user = this.state.user;
+        user.name = e.target.value;
+        this.setState({ user: user });
     },
 
     onDistanceChange: function(e) {
-        this.setState({
-            distance: e.target.value
-        });
+        var user = this.state.user;
+        user.distance = Number(e.target.value);
+        this.setState({ user: user }); 
     },
 
     onSignOutClick: function() {
@@ -72,20 +111,20 @@ module.exports = React.createClass({
                     <div className='row dashboard'>
                         <div className='img-container'>
                             <i className="fa fa-sign-out" onClick={this.onSignOutClick}></i>
-                            <img className='img-rounded' src={this.state.image_url} alt='profile image' />
+                            <img className='img-rounded' src={this.state.user.image_url} alt='profile image' />
                         </div>
 
                         <input  type='text' 
-                                value={this.state.name}
+                                value={this.state.user.name}
                                 onChange={this.onNameChange}
                                 onKeyUp={this.onNameChangeKeyUp} />
 
-                        <h4>distance of interest: {this.state.distance} km</h4>
+                        <h4>distance of interest: {this.state.user.distance} km</h4>
                         <input  onChange={this.onDistanceChange}
                                 onMouseUp={this.saveUserData}
                                 type="range"
                                 className="custom-range"
-                                value={this.state.distance}
+                                value={this.state.user.distance}
                                 min='1'
                                 max='10'/>
 
@@ -96,8 +135,11 @@ module.exports = React.createClass({
                     </div>
                 </div>
                 <div className='col-xs-8 col-sm-8'>
-                    <div className='row map'>
-                        <Map ref='map' point={this.state.point} radius={this.state.distance}/>
+                    <div className='row'>
+                        <Map lat={this.state.user.lat} 
+                            lng={this.state.user.lng}
+                            radius={this.state.user.distance}
+                            users={this.state.users} />
                     </div>
                 </div>
             </div>

@@ -1,7 +1,8 @@
 var $ = require('zepto-browserify').$
 var React = require('react');
 var Router = require('react-router');
-var fireBase = require('../utils/firebase').getFb().child('users');
+var fireBase = require('../utils/firebase').getFb();
+var fireBaseUserRef = fireBase.child('users');
 
 var AnimatedBg = require('./animated_background/main');
 
@@ -10,14 +11,16 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return {
-            point: [0,0]
+            lat: 0,
+            lng: 0
         }
     },
 
     componentWillMount: function() {
         var _this = this;
         $.get("http://ipinfo.io", function(data) {
-            _this.setState({ point: data.loc.split(',') });
+            var point = data.loc.split(',');
+            _this.setState({ lat: Number(point[0]), lng: Number(point[1])  });
         }, 'jsonp');
     },
 
@@ -29,7 +32,8 @@ module.exports = React.createClass({
             gender: profile.gender || '',
             distance: 1,
             messages: [],
-            point: this.state.point
+            lat: this.state.lat,
+            lng: this.state.lng
         };
 
         switch(provider) {
@@ -52,13 +56,13 @@ module.exports = React.createClass({
 
     saveUser: function(user) {
         var _this = this;
-        fireBase 
+        fireBaseUserRef
             .orderByChild("user_id").equalTo(user.user_id)
             .once('value', function(snap) {
                 if(snap.val()) {
                     _this.transitionTo('users', { userId: user.user_id });
                 } else {
-                    fireBase.push(user, function(error) {
+                    fireBaseUserRef.push(user, function(error) {
                         if(!error) {
                             _this.transitionTo('users', { userId: user.user_id });
                         }
