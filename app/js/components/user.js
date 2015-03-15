@@ -67,59 +67,38 @@ module.exports = React.createClass({
 
     render: function() {
         return (
-            <div className='setup container'> 
-                <div className='col-xs-12 col-sm-10 col-sm-offset-1'>
-
-                    <div className='jumbotron clearfix'>
-                        <div className='separator heading clearfix'>
-                            <div className='col-sm-10 col-xs-10'>
-                                <h3>Setup your preferences:</h3>
-                            </div>
-                            <div className='col-sm-2 col-xs-2 sign-out'>
-                                <i className="fa fa-sign-out" onClick={this.onSignOutClick}></i>
-                            </div>
-                        </div>
-                        <div className='clearfix'>
-                            <div className='col-sm-4 text-center' style={{ marginBottom: '20px'}} >
-                                <div style={{ height: '200px' }} >
-                                    <img src={this.state.image_url} alt='profile image' />
-                                </div>
-                                <input  type='text' 
-                                        value={this.state.name}
-                                        onChange={this.onNameChange}
-                                        onKeyUp={this.onNameChangeKeyUp} />
-                            </div>
-
-                            <div className='col-sm-8'>
-                                <div style={{ height: '200px' }}>
-                                    <Map ref='map' point={this.state.point} radius={this.state.distance}/>
-                                </div>
-                                <button className='btn btn-success btn-block'
-                                        style={{ marginTop: '22px' }}
-                                        onClick={this.updateLocation} >
-                                    Correct you location
-                                </button>
-                            </div>
+            <div className='setup row-fluid'>
+                <div className='col-xs-4 col-sm-4'>
+                    <div className='row dashboard'>
+                        <div className='img-container'>
+                            <i className="fa fa-sign-out" onClick={this.onSignOutClick}></i>
+                            <img className='img-rounded' src={this.state.image_url} alt='profile image' />
                         </div>
 
-                        <div className='clearfix'>
-                            <div className='separator body'>
-                                <h3>distance of interest: {this.state.distance} km</h3>
-                            </div>
-                            <input  onChange={this.onDistanceChange}
-                                    onMouseUp={this.saveUserData}
-                                    type="range"
-                                    className="custom-range"
-                                    value={this.state.distance}
-                                    min='1'
-                                    max='13'/>
-                        </div>
+                        <input  type='text' 
+                                value={this.state.name}
+                                onChange={this.onNameChange}
+                                onKeyUp={this.onNameChangeKeyUp} />
+
+                        <h4>distance of interest: {this.state.distance} km</h4>
+                        <input  onChange={this.onDistanceChange}
+                                onMouseUp={this.saveUserData}
+                                type="range"
+                                className="custom-range"
+                                value={this.state.distance}
+                                min='1'
+                                max='10'/>
+
+                         <button className='btn btn-success btn-block'
+                                 onClick={this.updateLocation} >
+                             Correct you location
+                         </button>
                     </div>
-
-                    <a href='' className='go-btn'>
-                        <i className="fa fa-location-arrow"></i>
-                    </a>
- 
+                </div>
+                <div className='col-xs-8 col-sm-8'>
+                    <div className='row map'>
+                        <Map ref='map' point={this.state.point} radius={this.state.distance}/>
+                    </div>
                 </div>
             </div>
         )

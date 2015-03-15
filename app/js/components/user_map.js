@@ -10,7 +10,7 @@ module.exports = React.createClass({
 
     render: function() {
         return (
-                <Map    height={'200'}
+                <Map    height={window.innerHeight}
                         width={'100%'} 
                         center={new LatLng(this.props.point[0], this.props.point[1])}
                         initialZoom={13 - this.props.radius}>
