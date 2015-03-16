@@ -2,7 +2,7 @@ var $ = require('zepto-browserify').$
 var React = require('react');
 var Router = require('react-router');
 var fireBase = require('../utils/firebase').getFb();
-var fireBaseUserRef = fireBase.child('users');
+var fireBaseUserRef = fireBase.child('clients');
 
 var AnimatedBg = require('./animated_background/main');
 
@@ -18,10 +18,10 @@ module.exports = React.createClass({
 
     componentWillMount: function() {
         var _this = this;
-        $.get("http://ipinfo.io", function(data) {
-            var point = data.loc.split(',');
-            _this.setState({ lat: Number(point[0]), lng: Number(point[1])  });
-        }, 'jsonp');
+//        $.get("http://ipinfo.io", function(data) {
+//            var point = data.loc.split(',');
+//            _this.setState({ lat: Number(point[0]), lng: Number(point[1])  });
+//        }, 'jsonp');
     },
 
     serializeUserData: function(user, provider) {
@@ -126,6 +126,7 @@ module.exports = React.createClass({
                     </div>
                     <h3 className='clearfix'>or</h3>
                     <button className='btn btn-lg btn-outlined try-incognito'
+                            disabled
                             onClick={this.anonimousAuthenticate}>
                         Go incognito
                     </button>

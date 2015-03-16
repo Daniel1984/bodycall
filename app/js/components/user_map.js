@@ -11,7 +11,7 @@ module.exports = React.createClass({
 
     render: function() {
         var markers = this.props.users.map(function(user) {
-//return <Marker key={user.user_id} position={new LatLng(user.lat, user.lng)} />;
+            //return <Marker key={user.user_id} position={new LatLng(user.lat, user.lng)} />;
             return ( 
                 <OverlayView key={user.user_id} style={{backgroundColor: '#fff', padding: '10px 10px 0 10px', borderRadius: '5px', zIndex: '100' }}
                     position={new GoogleMapsAPI.LatLng(user.lat, user.lng)}>

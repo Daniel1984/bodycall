@@ -1,6 +1,6 @@
 var React = require('react');
 var Router = require('react-router');
-var fireBase = require('../utils/firebase').getFb().child('users');
+var fireBase = require('../utils/firebase').getFb().child('clients');
 var Map = require('./user_map');
 var _ = require('lodash');
 var alertify = require('alertifyjs');
@@ -17,7 +17,9 @@ module.exports = React.createClass({
                 lat: 0,
                 lng: 0
             },
-            users: []
+            users: [],
+            locationUpdated: false,
+            updateLocationClicked: false
         };
     },
 
@@ -61,22 +63,24 @@ module.exports = React.createClass({
                 var res = snap.val()[fireKey];
                 this.userRef = fireBase.child(fireKey);
                 this.setState({ user: res });
-                this.getUsersByDistance();
             }.bind(this));
     },
 
     saveUserData: function() {
         this.userRef.update(this.state.user) 
-        this.getUsersByDistance();
-        alertify.message('User updated');
+        alertify.success('User updated');
     },
 
     updateLocation: function() {
+        this.setState({ updateLocationClicked: true });
         navigator.geolocation.getCurrentPosition(function(pos) {
             var user = this.state.user;
             user.lat = pos.coords.latitude;
             user.lng = pos.coords.longitude;
-            this.setState({ user: user });
+            this.setState({
+                user: user,
+                locationUpdated: true
+            });
             this.saveUserData();
         }.bind(this));
     },
@@ -110,32 +114,45 @@ module.exports = React.createClass({
                 <div className='col-xs-4 col-sm-4'>
                     <div className='row dashboard'>
                         <div className='img-container'>
-                            <i className="fa fa-sign-out" onClick={this.onSignOutClick}></i>
+                            <i className="fa fa-sign-out" title='Log Out' onClick={this.onSignOutClick}></i>
                             <img className='img-rounded' src={this.state.user.image_url} alt='profile image' />
                         </div>
 
-                        <input  type='text' 
-                                value={this.state.user.name}
-                                onChange={this.onNameChange}
-                                onKeyUp={this.onNameChangeKeyUp} />
+                        <section style={{ display: this.state.locationUpdated ? 'block' : 'none' }}>
+                            <input  type='text' 
+                                    value={this.state.user.name}
+                                    onChange={this.onNameChange}
+                                    onKeyUp={this.onNameChangeKeyUp} />
 
-                        <h4>distance of interest: {this.state.user.distance} km</h4>
-                        <input  onChange={this.onDistanceChange}
-                                onMouseUp={this.saveUserData}
-                                type="range"
-                                className="custom-range"
-                                value={this.state.user.distance}
-                                min='1'
-                                max='10'/>
-
-                         <button className='btn btn-success btn-block'
-                                 onClick={this.updateLocation} >
-                             Correct you location
-                         </button>
+                            <h4>distance of interest: {this.state.user.distance} km</h4>
+                            <input  onChange={this.onDistanceChange}
+                                    onMouseUp={this.saveUserData}
+                                    type="range"
+                                    className="custom-range"
+                                    value={this.state.user.distance}
+                                    min='1'
+                                    max='10'/>
+                            </section>
                     </div>
                 </div>
                 <div className='col-xs-8 col-sm-8'>
                     <div className='row'>
+                        <div className='overlay'
+                            style={{
+                                display: this.state.locationUpdated ? 'none' : 'block'
+                                }}>
+                                <button className='btn btn-lg btn-outlined location-btn'
+                                        onClick={this.updateLocation} >
+                                    <section style={{ display: this.state.updateLocationClicked ? 'none' : 'block' }}>
+                                        <i className="fa fa-location-arrow"></i>
+                                        <p>set your location</p>
+                                    </section>
+                                    <section style={{ display: this.state.updateLocationClicked ? 'block' : 'none' }}>
+                                        <i className="fa fa-circle-o-notch fa-spin"></i>
+                                        <p>calculating location</p>
+                                    </section>
+                                </button>
+                        </div>
                         <Map lat={this.state.user.lat} 
                             lng={this.state.user.lng}
                             radius={this.state.user.distance}

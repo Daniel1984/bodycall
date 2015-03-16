@@ -1,0 +1,47 @@
+div.dashboard {
+    position: fixed;
+    height: 100%;
+    width: inherit;
+    background: #232528;
+    padding: 0 10px 10px 10px;
+    -webkit-box-shadow: -5px 0 10px 1px rgba(0,0,0,0.6) inset;
+    box-shadow: -5px 0 10px 1px rgba(0,0,0,0.6) inset;
+    div.img-container {
+        height: 200px;
+        margin-top: 20px;
+        text-align: center;
+        img {
+            height: 100%;
+            width: auto;
+            -webkit-box-shadow: 0 0 9px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 0 9px 4px rgba(0,0,0,0.5);
+            transition: all 0.5s;
+            -webkit-transition: all 0.4s;
+            &:hover {
+                transform: scale(1.3, 1.3) translateY(25px);
+            }
+        }
+        i.fa-sign-out {
+            color: white;
+            font-size: 25px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+        }
+    }
+    h4 {
+        margin: 20px 0 10px 0;
+        font-weight: 100;
+        text-align: center;
+        color: #fff;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        letter-spacing: 2px;
+    }
+    input[type='range'] {
+        margin-top: 20px;
+    }
+    button {
+        margin-top: 40px;
+    }
+}
