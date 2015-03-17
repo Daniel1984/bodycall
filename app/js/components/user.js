@@ -1,6 +1,9 @@
 var React = require('react');
 var Router = require('react-router');
 var fireBase = require('../utils/firebase').getFb().child('clients');
+var userRef = require('../utils/firebase').getFb();
+var amOnline = new Firebase('https://bootycall.firebaseio.com/.info/connected');
+
 var Map = require('./user_map');
 var _ = require('lodash');
 var alertify = require('alertifyjs');
@@ -25,6 +28,9 @@ module.exports = React.createClass({
 
     componentDidMount: function() { 
         this.getUserData();
+    },
+
+    setUsersCollectionWatcher: function() {
         // below we listen to any change happening to users array
         fireBase.on('value', function(snapshot) {
             this.getUsersByDistance();
@@ -60,18 +66,22 @@ module.exports = React.createClass({
             .orderByChild("user_id").equalTo(this.getParams().userId)
             .once('value', function(snap) {
                 var fireKey = Object.keys(snap.val())[0];
-                var res = snap.val()[fireKey];
-                this.userRef = fireBase.child(fireKey);
-                this.setState({ user: res });
+                userRef = userRef.child('clients/' + fireKey);
+                userRef.update({ online: true });
+                userRef.onDisconnect().update({ online: false });
+                var resUser = snap.val()[fireKey];
+                resUser.online = true;
+                this.setState({ user: resUser });
             }.bind(this));
     },
 
     saveUserData: function() {
-        this.userRef.update(this.state.user) 
+        userRef.update(this.state.user) 
         alertify.success('User updated');
     },
 
     updateLocation: function() {
+        this.setUsersCollectionWatcher();
         this.setState({ updateLocationClicked: true });
         navigator.geolocation.getCurrentPosition(function(pos) {
             var user = this.state.user;
@@ -102,7 +112,7 @@ module.exports = React.createClass({
     },
 
     onSignOutClick: function() {
-        fireBase.unauth();
+        userRef.update({ online: false });
         sessionStorage.clear();
         localStorage.clear();
         this.transitionTo('/');

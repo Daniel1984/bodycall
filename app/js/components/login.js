@@ -3,7 +3,6 @@ var React = require('react');
 var Router = require('react-router');
 var fireBase = require('../utils/firebase').getFb();
 var fireBaseUserRef = fireBase.child('clients');
-
 var AnimatedBg = require('./animated_background/main');
 
 module.exports = React.createClass({
@@ -11,8 +10,8 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return {
-            lat: 0,
-            lng: 0
+            lat: 20,
+            lng: 20
         }
     },
 
@@ -32,6 +31,7 @@ module.exports = React.createClass({
             gender: profile.gender || '',
             distance: 1,
             messages: [],
+            online: false,
             lat: this.state.lat,
             lng: this.state.lng
         };

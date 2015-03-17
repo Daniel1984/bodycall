@@ -13,17 +13,18 @@ module.exports = React.createClass({
         var markers = this.props.users.map(function(user) {
             //return <Marker key={user.user_id} position={new LatLng(user.lat, user.lng)} />;
             return ( 
-                <OverlayView key={user.user_id} style={{backgroundColor: '#fff', padding: '10px 10px 0 10px', borderRadius: '5px', zIndex: '100' }}
+                <OverlayView key={user.user_id} style={{backgroundColor: '#fff', borderRadius: '5px', zIndex: '100' }}
                     position={new GoogleMapsAPI.LatLng(user.lat, user.lng)}>
-                    <div style={{ textAlign: 'center', whiteSpace: 'nowrap', overflowX: 'hidden', width: '40px' }}>
+                    <div style={{ textAlign: 'center', overflowX: 'hidden', width: '50px'}}>
+                        {user.online && user.online == true ? <span style={{color: '#34B300'}}>online</span> : <span style={{color: 'gray'}}>offline</span>}
                         <img src={user.image_url} style={{ width: '40px' }} />
-                        <p style={{ textOverflow: 'ellipsis' }}>{user.name}</p>
+                        <p>{user.name.split(' ')[0]}</p>
                     </div>
                 </OverlayView>
             )
         });
         var circles = this.props.users.map(function(user) {
-            return <Circle key={user.user_id} strokeColor="#000" center={new LatLng(user.lat, user.lng)} radius={user.distance * 1000} />;
+            return <Circle key={user.user_id} strokeColor="rgba(0, 0, 0, 0.5)" center={new LatLng(user.lat, user.lng)} radius={user.distance * 1000} />;
         });
         return (
                 <Map    height={window.innerHeight}
